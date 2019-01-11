@@ -1,15 +1,15 @@
-# °úÁ¦(~8/22)
+# ê³¼ì œ(~8/22)
 
 
 
 # Web Scrapping
-# Á¤Á¦ ÀÛ¾÷
+# ì •ì œ ì‘ì—…
 # Word Cloud 
 
 
 
-# ¿ùº° °Ë»ö ÇöÈ²(±×·¡ÇÁ)
-## BMW ºí·Î±× Title À¥ Å©·Ñ¸µ
+# ì›”ë³„ ê²€ìƒ‰ í˜„í™©(ê·¸ë˜í”„)
+## BMW ë¸”ë¡œê·¸ Title ì›¹ í¬ë¡¤ë§
 library(rvest) 
 library(dplyr) 
 library(ggplot2) 
@@ -26,24 +26,24 @@ blog_bmw_data <- function(num){
   return(blog_bmw) 
 }
 
-## ¹İº¹¹® È°¿ëÇØ¼­ °¢ ÆäÀÌÁö¸¶´Ù Á¦¸ñÀÌ¶û Æ÷½ºÆÃ ³¯Â¥ ºÒ·¯¿À±â 
+## ë°˜ë³µë¬¸ í™œìš©í•´ì„œ ê° í˜ì´ì§€ë§ˆë‹¤ ì œëª©ì´ë‘ í¬ìŠ¤íŒ… ë‚ ì§œ ë¶ˆëŸ¬ì˜¤ê¸° 
 blog_bmw <- data.frame() 
 for(x in seq(1,991,10)){ 
   blog_bmw <- rbind(blog_bmw, blog_bmw_data(x)) 
 }
 head(blog_bmw)
 
-## ÀüÃ³¸®
-blog_bmw <- blog_bmw[-grep("Àü", blog_bmw$day_data),] 
-blog_bmw <- blog_bmw[-grep("¾îÁ¦", blog_bmw$day_data),] 
+## ì „ì²˜ë¦¬
+blog_bmw <- blog_bmw[-grep("ì „", blog_bmw$day_data),] 
+blog_bmw <- blog_bmw[-grep("ì–´ì œ", blog_bmw$day_data),] 
 blog_bmw$day_data <- factor(blog_bmw$day_data) 
 blog_bmw <- transform(blog_bmw, YYMM = substr(day_data,1,7))
 
-## ¿ùº° BMW ºí·Î±× Æ÷½ºÆÃ ¼ö
+## ì›”ë³„ BMW ë¸”ë¡œê·¸ í¬ìŠ¤íŒ… ìˆ˜
 data.frame(table(blog_bmw$YYMM))[1:5,] %>% ggplot(aes(x=Var1, y=Freq, group=1)) +  
   geom_line() + 
   geom_point(col="red") +  
-  labs(x=NULL, y="Æ÷½ºÆÃ ¼ö", title="´ÙÀ½ ºí·Î±× BMW °ü·Ã ¿ùº° Æ÷½ºÆÃ µî·Ï ¼ö") + 
+  labs(x=NULL, y="í¬ìŠ¤íŒ… ìˆ˜", title="ë‹¤ìŒ ë¸”ë¡œê·¸ BMW ê´€ë ¨ ì›”ë³„ í¬ìŠ¤íŒ… ë“±ë¡ ìˆ˜") + 
   theme_bw() + 
   theme(plot.title=element_text(face="bold", size=20))
 
@@ -53,13 +53,13 @@ data.frame(table(blog_bmw$YYMM))[1:5,] %>% ggplot(aes(x=Var1, y=Freq, group=1)) 
 
 
 
-# ±¹³» ¹İÀÀ ºĞ¼®(³×ÀÌ¹ö)
+# êµ­ë‚´ ë°˜ì‘ ë¶„ì„(ë„¤ì´ë²„)
 library(httr)
 
 allreviewN = c()
 urlN = 'https://search.naver.com/search.naver?date_from=&date_option=0&date_to=&dup_remove=1&nso=&post_blogurl=&post_blogurl_without=&query=bmw&sm=tab_pge&srchby=all&st=sim&where=post&start='
 
-## ³×ÀÌ¹ö
+## ë„¤ì´ë²„
 for(page in 1:1000)
 {
   a = (page - 1) * 10 + 1
@@ -75,7 +75,7 @@ for(page in 1:1000)
 }
 head(allreviewN)
 
-## 1. ÇÊ¿äÇÑ(ÃßÃâÇØ¾ß ÇÒ) ÄÚµå È®ÀÎ
+## 1. í•„ìš”í•œ(ì¶”ì¶œí•´ì•¼ í• ) ì½”ë“œ í™•ì¸
 data <- c()
 for (i in 1:100) { 
   url_bmw <- read_html(paste0("https://auto.naver.com/search/blogSearch.nhn?carTotalCount=427&bikeTotalCount=116&postTotalCount=63419&imageTotalCount=16250&blogTotalCount=534564&cafeTotalCount=1711&query=bmw&searchType=&sortType=&filterType=CAR_FILTER_ALL&page=",i))
@@ -87,7 +87,7 @@ head(data)
 str(url_bmw)
 str(data)
 
-## 2. ÅØ½ºÆ® ÇüÅÂ·Î º¯¼ö ÀúÀå 
+## 2. í…ìŠ¤íŠ¸ í˜•íƒœë¡œ ë³€ìˆ˜ ì €ì¥ 
 txt <- c()
 for (i in 1:10){
   url_bmw <- read_html(data[i])
@@ -102,8 +102,8 @@ head(txt)
 
 
 
-# ºí·Î±× ±Û °¡Á®¿À±â
-## 1. ÇÊ¿äÇÑ(ÃßÃâÇØ¾ß ÇÒ) ÄÚµå È®ÀÎ
+# ë¸”ë¡œê·¸ ê¸€ ê°€ì ¸ì˜¤ê¸°
+## 1. í•„ìš”í•œ(ì¶”ì¶œí•´ì•¼ í• ) ì½”ë“œ í™•ì¸
 data <- c()
 for (i in 1:100) { 
   url_bmw <- read_html(paste0("https://search.daum.net/search?w=blog&DA=PGD&enc=utf8&q=bmw&page=",i,"&m=board"))
@@ -116,7 +116,7 @@ head(data)
 str(url_bmw)
 str(data)
 
-## 2. ÅØ½ºÆ® ÇüÅÂ·Î º¯¼ö ÀúÀå 
+## 2. í…ìŠ¤íŠ¸ í˜•íƒœë¡œ ë³€ìˆ˜ ì €ì¥ 
 txt <- c()
 for (i in 1:length(data)){
   url_bmw <- read_html(data[i])
@@ -127,36 +127,36 @@ for (i in 1:length(data)){
 length(txt)
 head(txt)
 
-# »çÀü ¾÷µ¥ÀÌÆ®
+# ì‚¬ì „ ì—…ë°ì´íŠ¸
 library(KoNLP)
 useSejongDic()
 buildDictionary(ext_dic="sejong", user_dic = data.frame(readLines("C://data/positive-words-ko-v2.txt"),"ncn"),replace_usr_dic = T)
 buildDictionary(ext_dic="sejong", user_dic = data.frame(readLines("C://data/negative-words-ko-v2-2.txt"),"ncn"),replace_usr_dic = T)
 
-# µ¥ÀÌÅÍ ·Îµå 
+# ë°ì´í„° ë¡œë“œ 
 posi <- unlist(readLines("C://data/positive-words-ko-v2.txt"))
 nega <- unlist(readLines("C://data/negative-words-ko-v2-2.txt"))
 txt2 <- SimplePos09(txt)  
 
-# µ¥ÀÌÅÍ Á¤Á¦
+# ë°ì´í„° ì •ì œ
 txt_replace <- str_replace_all(unlist(txt2), '/.*',"")
 head(txt_replace,7)
 length(txt_replace)
 
-greptxt <- grep('[°¡-ÆR]',txt_replace, value=T)
+greptxt <- grep('[ê°€-R]',txt_replace, value=T)
 iftxt <- as.vector(na.omit(ifelse(nchar(greptxt)<=2,NA,greptxt)))
 iftxt <- as.vector(str_trim(iftxt))
 
 iftxt <- str_replace_all(iftxt,"'$","")
-iftxt <- str_replace_all(iftxt,'¡¯$',"")
-iftxt <- str_replace_all(iftxt,"´Â$","")
-iftxt <- str_replace_all(iftxt,'¸¦$',"")
-iftxt <- str_replace_all(iftxt,'À»$',"")
-iftxt <- str_replace_all(iftxt,'µé$',"")
-iftxt <- str_replace_all(iftxt,'¿¡¼­$',"")
-iftxt <- str_replace_all(iftxt,'º¸´Ù$',"")
-iftxt <- str_replace_all(iftxt,'±îÁö$',"")
-iftxt <- str_replace_all(iftxt,'À¸·Î$',"")
+iftxt <- str_replace_all(iftxt,'â€™$',"")
+iftxt <- str_replace_all(iftxt,"ëŠ”$","")
+iftxt <- str_replace_all(iftxt,'ë¥¼$',"")
+iftxt <- str_replace_all(iftxt,'ì„$',"")
+iftxt <- str_replace_all(iftxt,'ë“¤$',"")
+iftxt <- str_replace_all(iftxt,'ì—ì„œ$',"")
+iftxt <- str_replace_all(iftxt,'ë³´ë‹¤$',"")
+iftxt <- str_replace_all(iftxt,'ê¹Œì§€$',"")
+iftxt <- str_replace_all(iftxt,'ìœ¼ë¡œ$',"")
 View(iftxt)
 
 tabtxt <- table(iftxt)
@@ -167,9 +167,9 @@ tab_positxt <- table(positxt) ; tab_positxt
 negatxt <- iftxt[iftxt %in% intersect(iftxt, nega)]
 tab_negatxt <- table(negatxt) ; tab_negatxt
 
-# ¿öµå Å¬¶ó¿ìµå
+# ì›Œë“œ í´ë¼ìš°ë“œ
 pal <- brewer.pal(8,"Dark2")
-windowsFonts(are=windowsFont("¸¼Àº °íµñ")) 
+windowsFonts(are=windowsFont("ë§‘ì€ ê³ ë”•")) 
 wordcloud(words = rownames(tabtxt),
           freq = tabtxt,
           min.freq = 10,
@@ -179,9 +179,9 @@ wordcloud(words = rownames(tabtxt),
           scale = c(4,1),
           colors = pal, family = "are")
 
-## ±àÁ¤ÀûÀÎ ´Ü¾î
+## ê¸ì •ì ì¸ ë‹¨ì–´
 pal <- brewer.pal(8,"Paired")
-windowsFonts(are=windowsFont("¸¼Àº °íµñ")) 
+windowsFonts(are=windowsFont("ë§‘ì€ ê³ ë”•")) 
 wordcloud(words = rownames(tab_positxt),
           freq = tab_positxt,
           min.freq = 1,
@@ -193,9 +193,9 @@ wordcloud(words = rownames(tab_positxt),
 wordcloud2(tab_positxt, color = "random-light", backgroundColor = "black", rotateRatio = 0, shape = "diamond")
 ?wordcloud2
 
-## ºÎÁ¤ÀûÀÎ ´Ü¾î
+## ë¶€ì •ì ì¸ ë‹¨ì–´
 pal <- brewer.pal(8,"Dark2")
-windowsFonts(are=windowsFont("¸¼Àº °íµñ")) 
+windowsFonts(are=windowsFont("ë§‘ì€ ê³ ë”•")) 
 wordcloud(words = rownames(tab_negatxt),
           freq = tab_negatxt,
           min.freq = 1,
@@ -208,7 +208,7 @@ wordcloud(words = rownames(tab_negatxt),
 library(wordcloud2)
 wordcloud2(tab_negatxt, color = "random-light", backgroundColor = "black")
 
-# BarplotÀ¸·Î ºñ±³ 
+# Barplotìœ¼ë¡œ ë¹„êµ 
 library(ggplot2)
 df = data.frame(x = head(sort(tab_positxt, decreasing = T),10), x2 = head(sort(tab_negatxt, decreasing = T),10))
 df
@@ -216,13 +216,13 @@ df
 df %>% ggplot(aes(x=x.positxt, y=x.Freq)) +
   geom_bar(stat = "identity", fill = "skyblue", colour = "darkblue") +
   coord_cartesian(ylim=c(0,25)) +
-  labs(x="´Ü¾î", y="ºóµµ¼ö", title="°¨Á¤ ºĞ¼®(ÇÑ±¹¾î)")
+  labs(x="ë‹¨ì–´", y="ë¹ˆë„ìˆ˜", title="ê°ì • ë¶„ì„(í•œêµ­ì–´)")
 
 df %>% ggplot(aes(x=x2.negatxt, y=x2.Freq)) +
   geom_bar(stat = "identity", fill = "pink", colour = "red") +
   scale_x_discrete(limits = rev(df$x2.negatxt)) +
   coord_cartesian(ylim=c(0,25)) +
-  labs(x="´Ü¾î", y="ºóµµ¼ö", title="°¨Á¤ ºĞ¼®(ÇÑ±¹¾î)")
+  labs(x="ë‹¨ì–´", y="ë¹ˆë„ìˆ˜", title="ê°ì • ë¶„ì„(í•œêµ­ì–´)")
 
 a <- as.data.frame(sort(head(sort(tab_positxt, decreasing = T),10)))
 b <- as.data.frame(head(sort(tab_negatxt, decreasing = T),10))
@@ -231,12 +231,12 @@ b$color <- 2
 colnames(b) <- colnames(a)
 c <- rbind(a,b)
 
-## Á¾ÇÕ 
-windowsFonts(are=windowsFont("¸¼Àº °íµñ"))
+## ì¢…í•© 
+windowsFonts(are=windowsFont("ë§‘ì€ ê³ ë”•"))
 c %>% ggplot(aes(x=positxt, y=Freq)) +
-  geom_bar(stat = "identity", aes(fill = ifelse(c$color==1,"±àÁ¤","ºÎÁ¤")), colour = ifelse(c$color==1,"darkblue","red")) +
+  geom_bar(stat = "identity", aes(fill = ifelse(c$color==1,"ê¸ì •","ë¶€ì •")), colour = ifelse(c$color==1,"darkblue","red")) +
   coord_cartesian(ylim=c(0,25)) +
-  labs(x="´Ü¾î", y="ºóµµ¼ö", title="±â¾÷ ¼±È£µµ ºĞ¼®(ÇÑ±¹¾î)") +
+  labs(x="ë‹¨ì–´", y="ë¹ˆë„ìˆ˜", title="ê¸°ì—… ì„ í˜¸ë„ ë¶„ì„(í•œêµ­ì–´)") +
   theme(axis.text.x = element_text(angle=45, hjust = 1, vjust = 1, size = 10)) +
   theme(axis.ticks.y = element_blank(),axis.text.y = element_blank()) +
   theme(plot.title = element_text(size=20, face="bold", margin = margin(10, 0, 10, 0), family = "are")) +
@@ -250,7 +250,7 @@ c %>% ggplot(aes(x=positxt, y=Freq)) +
 
 
 
-# ÇØ¿Ü ¹İÀÀ ºĞ¼®(Æ®À§ÅÍ)
+# í•´ì™¸ ë°˜ì‘ ë¶„ì„(íŠ¸ìœ„í„°)
 install.packages("twitteR")
 install.packages("ROAuth")
 install.packages("syuzhet")
@@ -323,7 +323,7 @@ wordcloud(words = rownames(tab_negtxt),
           scale = c(5,1),
           colors = pal, family = "are")
 
-# BarplotÀ¸·Î ºñ±³ 
+# Barplotìœ¼ë¡œ ë¹„êµ 
 library(ggplot2)
 df2 = data.frame(x = head(sort(tab_postxt, decreasing = T),10), x2 = head(sort(tab_negtxt, decreasing = T),10))
 df2
@@ -331,13 +331,13 @@ df2
 df2 %>% ggplot(aes(x=x.postxt, y=x.Freq)) +
   geom_bar(stat = "identity", fill = "skyblue", colour = "darkblue") +
   coord_cartesian(ylim=c(0,25)) +
-  labs(x="´Ü¾î", y="ºóµµ¼ö", title="°¨Á¤ ºĞ¼®(¿µ¾î)")
+  labs(x="ë‹¨ì–´", y="ë¹ˆë„ìˆ˜", title="ê°ì • ë¶„ì„(ì˜ì–´)")
 
 df2 %>% ggplot(aes(x=x2.negtxt, y=x2.Freq)) +
   geom_bar(stat = "identity", fill = "pink", colour = "red") +
   scale_x_discrete(limits = rev(df2$x2.negtxt)) +
   coord_cartesian(ylim=c(0,25)) +
-  labs(x="´Ü¾î", y="ºóµµ¼ö", title="°¨Á¤ ºĞ¼®(¿µ¾î)")
+  labs(x="ë‹¨ì–´", y="ë¹ˆë„ìˆ˜", title="ê°ì • ë¶„ì„(ì˜ì–´)")
 
 e <- as.data.frame(sort(head(sort(tab_postxt, decreasing = T),10)))
 f <- as.data.frame(head(sort(tab_negtxt, decreasing = T),10))
@@ -346,12 +346,12 @@ f$color <- 2
 colnames(f) <- colnames(e)
 g <- rbind(e,f)
 
-## Á¾ÇÕ 
-windowsFonts(are=windowsFont("¸¼Àº °íµñ"))
+## ì¢…í•© 
+windowsFonts(are=windowsFont("ë§‘ì€ ê³ ë”•"))
 g %>% ggplot(aes(x=postxt, y=Freq)) +
-  geom_bar(stat = "identity", aes(fill = ifelse(g$color==1,"±àÁ¤","ºÎÁ¤")), colour = ifelse(g$color==1,"darkblue","red")) +
+  geom_bar(stat = "identity", aes(fill = ifelse(g$color==1,"ê¸ì •","ë¶€ì •")), colour = ifelse(g$color==1,"darkblue","red")) +
   coord_cartesian(ylim=c(0,25)) +
-  labs(x="´Ü¾î", y="ºóµµ¼ö", title="±â¾÷ ¼±È£µµ ºĞ¼®(¿µ¾î)") +
+  labs(x="ë‹¨ì–´", y="ë¹ˆë„ìˆ˜", title="ê¸°ì—… ì„ í˜¸ë„ ë¶„ì„(ì˜ì–´)") +
   theme(axis.text.x = element_text(angle=45, hjust = 1, vjust = 1, size = 10)) +
   theme(axis.ticks.y = element_blank(),axis.text.y = element_blank()) +
   theme(plot.title = element_text(size=20, face="bold", margin = margin(10, 0, 10, 0), family = "are"))  +
@@ -368,18 +368,18 @@ g %>% ggplot(aes(x=postxt, y=Freq)) +
 
 
 
-# ÀÏº» ¹İÀÀ ºĞ¼®(¾ßÈÄÁ®ÆÒ)
+# ì¼ë³¸ ë°˜ì‘ ë¶„ì„(ì•¼í›„ì ¸íŒ¬)
 
-# udpipe ÆĞÅ°Áö ÀÌ¿ë 
+# udpipe íŒ¨í‚¤ì§€ ì´ìš© 
 install.packages("udpipe")
 library(udpipe)
 model <- udpipe_download_model(language = "japanese")
 model <- udpipe_load_model(file = model$file_model)
-x <- udpipe_annotate(model, x = "ªäªÏªê«Æ«¯«Î«í«¸???ª¬òäûùª·ªÆªâ¡¢ìíÜâåŞªÎ«Ç???«¿İÂà°ªÏÜôÊ¦ÒöªÊªÎª«£¿ª½ª³ªÇøÉŞä «½«ê«å???«·«ç«ó«³«ó«µ«ë«Æ«£«ó«°ğ¯ìéÜâİ» ??????İ»íş òĞï£ ÍÔö½ªòÛ¾ªÍ¡¢«Æ«­«¹«È«Ş«¤«Ë«ó«°???«½«ê«å???«·«ç«óªÎù±é©àõªä???éÄàõªÊªÉªËªÄª¤ªÆü¥ªòŞÃªÃª¿¡£")
+x <- udpipe_annotate(model, x = "ã‚„ã¯ã‚Šãƒ†ã‚¯ãƒãƒ­ã‚¸???ãŒé€²åŒ–ã—ã¦ã‚‚ã€æ—¥æœ¬èªã®ãƒ‡???ã‚¿åˆ†æã¯ä¸å¯èƒ½ãªã®ã‹ï¼Ÿãã“ã§å¼Šç¤¾ ã‚½ãƒªãƒ¥???ã‚·ãƒ§ãƒ³ã‚³ãƒ³ã‚µãƒ«ãƒ†ã‚£ãƒ³ã‚°ç¬¬ä¸€æœ¬éƒ¨ ??????éƒ¨é•· æ´¥ç”° é«˜æ²»ã‚’è¨ªã­ã€ãƒ†ã‚­ã‚¹ãƒˆãƒã‚¤ãƒ‹ãƒ³ã‚°???ã‚½ãƒªãƒ¥???ã‚·ãƒ§ãƒ³ã®å¿…è¦æ€§ã‚„???ç”¨æ€§ãªã©ã«ã¤ã„ã¦è©±ã‚’ä¼ºã£ãŸã€‚")
 x <- as.data.frame(x)
 x
 
-## 1. ÇÊ¿äÇÑ(ÃßÃâÇØ¾ß ÇÒ) ÄÚµå È®ÀÎ
+## 1. í•„ìš”í•œ(ì¶”ì¶œí•´ì•¼ í• ) ì½”ë“œ í™•ì¸
 dataj <- c()
 for (i in 1:100) {
   webpagej <- read_html(paste0("https://official.ameba.jp/search?q=BMW&type=blog&page=",i))
@@ -390,7 +390,7 @@ for (i in 1:100) {
 length(dataj)
 head(dataj)
 
-## 2. ÅØ½ºÆ® ÇüÅÂ·Î º¯¼ö ÀúÀå 
+## 2. í…ìŠ¤íŠ¸ í˜•íƒœë¡œ ë³€ìˆ˜ ì €ì¥ 
 txtj <- c()
 for (i in 1:length(dataj)){
   webpagej <- read_html(dataj[i])
@@ -416,23 +416,23 @@ jtrim0 <- as.vector(na.omit(ifelse(nchar(jtrim0)<=2,NA,jtrim0)))
 jtrim <- jtrim0
 jtrim <- as.vector(str_trim(jtrim0))
 
-jtrim <- str_replace_all(jtrim,"[¡¡]","")
+jtrim <- str_replace_all(jtrim,"[ã€€]","")
 jtrim <- str_replace_all(jtrim,"[[:punct:]]","")
 jtrim <- str_replace_all(jtrim,"[a-z]","")
 jtrim <- str_replace_all(jtrim,"[A-Z]","")
-jtrim <- str_replace_all(jtrim,"[£Á-£Ú]","")
-jtrim <- str_replace_all(jtrim,"[£á-£ú]","")
+jtrim <- str_replace_all(jtrim,"[ï¼¡-ï¼º]","")
+jtrim <- str_replace_all(jtrim,"[ï½-ï½š]","")
 jtrim <- str_replace_all(jtrim,"[[:digit:]]","")
 jtrim <- str_replace_all(jtrim,"[[:digit:]]$","")
 jtrim <- str_replace_all(jtrim,"^[[:digit:]]","")
-jtrim <- str_replace_all(jtrim,"¦¬","")
+jtrim <- str_replace_all(jtrim,"â”","")
 jtrim <- grep("[[:alpha:]]",jtrim,value = T)
 
 jtrim2 <-c()
 for (i in jtrim){
-  if (!i %in% c('«¢«¯«»«¹','«Ö«í«°','áôª±ö¢ªì','«ê«Ö«í«°','«³«á«ó«È','«Ä«¤???«È','ªÈª¤ª¦',
-                'ª·ª¿ìÑìé???','ªÊªíª¦','«·«§«¢','ª³ªóªÊ','ª·ªŞªÃ','«Ë«å???«¹','«¢«««¦«ó«È',
-                'ªÇª·ªç','ìÑìé???','ª´ª¶ª¤','ªÇª¹ªÍ','ª·ªŞªÃ','ªÈª³ªí','ªÈªÆªâ','ìÑìé???«Ä«¤???«È')){ 
+  if (!i %in% c('ã‚¢ã‚¯ã‚»ã‚¹','ãƒ–ãƒ­ã‚°','å—ã‘å–ã‚Œ','ãƒªãƒ–ãƒ­ã‚°','ã‚³ãƒ¡ãƒ³ãƒˆ','ãƒ„ã‚¤???ãƒˆ','ã¨ã„ã†',
+                'ã—ãŸäººä¸€???','ãªã‚ã†','ã‚·ã‚§ã‚¢','ã“ã‚“ãª','ã—ã¾ã£','ãƒ‹ãƒ¥???ã‚¹','ã‚¢ã‚«ã‚¦ãƒ³ãƒˆ',
+                'ã§ã—ã‚‡','äººä¸€???','ã”ã–ã„','ã§ã™ã­','ã—ã¾ã£','ã¨ã“ã‚','ã¨ã¦ã‚‚','äººä¸€???ãƒ„ã‚¤???ãƒˆ')){ 
     jtrim2<-c(jtrim2,i)
   }
 }
@@ -456,7 +456,7 @@ jtable <- table(jtrim)
 jsort <- head(sort(jtable, decreasing = T),50)
 
 # Wordcloud
-## Á¾ÇÕ 
+## ì¢…í•© 
 pal <- brewer.pal(8,"Dark2")
 wordcloud(words = rownames(jtable),
           freq = jtable,
@@ -467,7 +467,7 @@ wordcloud(words = rownames(jtable),
           scale = c(30,1),
           colors = pal, family = "are")
 
-## ±àÁ¤ÀûÀÎ ´Ü¾î
+## ê¸ì •ì ì¸ ë‹¨ì–´
 pal <- brewer.pal(8,"Dark2")
 wordcloud(words = rownames(tab_postxt_j),
           freq = tab_postxt_j,
@@ -478,7 +478,7 @@ wordcloud(words = rownames(tab_postxt_j),
           scale = c(5,1),
           colors = pal, family = "are")
 
-## ºÎÁ¤ÀûÀÎ ´Ü¾î 
+## ë¶€ì •ì ì¸ ë‹¨ì–´ 
 pal <- brewer.pal(8,"Dark2")
 wordcloud(words = rownames(tab_negtxt_j),
           freq = tab_negtxt_j,
@@ -489,7 +489,7 @@ wordcloud(words = rownames(tab_negtxt_j),
           scale = c(6,2),
           colors = pal, family = "are")
 
-# BarplotÀ¸·Î ºñ±³ 
+# Barplotìœ¼ë¡œ ë¹„êµ 
 library(ggplot2)
 df3 = data.frame(x = head(sort(tab_postxt_j, decreasing = T),10), x2 = head(sort(tab_negtxt_j, decreasing = T),10))
 df3
@@ -497,13 +497,13 @@ df3
 df3 %>% ggplot(aes(x=x.postxt_j, y=x.Freq)) +
   geom_bar(stat = "identity", fill = "skyblue", colour = "darkblue") +
   coord_cartesian(ylim=c(0,25)) +
-  labs(x="´Ü¾î", y="ºóµµ¼ö", title="°¨¼º ºĞ¼®(ÀÏº»¾î)")
+  labs(x="ë‹¨ì–´", y="ë¹ˆë„ìˆ˜", title="ê°ì„± ë¶„ì„(ì¼ë³¸ì–´)")
 
 df3 %>% ggplot(aes(x=x2.negtxt_j, y=x2.Freq)) +
   geom_bar(stat = "identity", fill = "pink", colour = "red") +
   scale_x_discrete(limits = rev(df3$x2.negtxt_j)) +
   coord_cartesian(ylim=c(0,25)) +
-  labs(x="´Ü¾î", y="ºóµµ¼ö", title="°¨¼º ºĞ¼®(ÀÏº»¾î)")
+  labs(x="ë‹¨ì–´", y="ë¹ˆë„ìˆ˜", title="ê°ì„± ë¶„ì„(ì¼ë³¸ì–´)")
 
 h <- as.data.frame(sort(head(sort(tab_postxt_j, decreasing = T),10)))
 i <- as.data.frame(head(sort(tab_negtxt_j, decreasing = T),10))
@@ -512,12 +512,12 @@ i$color <- 2
 colnames(i) <- colnames(h)
 j <- rbind(h,i)
 
-## Á¾ÇÕ
-windowsFonts(are=windowsFont("¸¼Àº °íµñ"))
+## ì¢…í•©
+windowsFonts(are=windowsFont("ë§‘ì€ ê³ ë”•"))
 j %>% ggplot(aes(x=postxt_j, y=Freq)) +
-  geom_bar(stat = "identity", aes(fill = ifelse(j$color==1,"±àÁ¤","ºÎÁ¤")), colour = ifelse(j$color==1,"darkblue","red")) +
+  geom_bar(stat = "identity", aes(fill = ifelse(j$color==1,"ê¸ì •","ë¶€ì •")), colour = ifelse(j$color==1,"darkblue","red")) +
   coord_cartesian(ylim=c(0,25)) +
-  labs(x="´Ü¾î", y="ºóµµ¼ö", title="±â¾÷ ¼±È£µµ ºĞ¼®(ÀÏº»¾î)") +
+  labs(x="ë‹¨ì–´", y="ë¹ˆë„ìˆ˜", title="ê¸°ì—… ì„ í˜¸ë„ ë¶„ì„(ì¼ë³¸ì–´)") +
   theme(axis.text.x = element_text(angle=45, hjust = 1, vjust = 1, size = 10)) +
   theme(axis.ticks.y = element_blank(),axis.text.y = element_blank()) +
   theme(plot.title = element_text(size=20, face="bold", margin = margin(10, 0, 10, 0), family="are"))  +
