@@ -1,6 +1,7 @@
 # 과제(~8/22)
 
 
+# Text Mining in Korean, English, and Japanese 
 
 # Web Scrapping
 # 정제 작업
@@ -8,6 +9,7 @@
 
 
 
+# Visualisation 
 # 월별 검색 현황(그래프)
 ## BMW 블로그 Title 웹 크롤링
 library(rvest) 
@@ -49,59 +51,11 @@ data.frame(table(blog_bmw$YYMM))[1:5,] %>% ggplot(aes(x=Var1, y=Freq, group=1)) 
 
 
 
-####################################################################################################
-
-
-
-# 국내 반응 분석(네이버)
-library(httr)
-
-allreviewN = c()
-urlN = 'https://search.naver.com/search.naver?date_from=&date_option=0&date_to=&dup_remove=1&nso=&post_blogurl=&post_blogurl_without=&query=bmw&sm=tab_pge&srchby=all&st=sim&where=post&start='
-
-## 네이버
-for(page in 1:1000)
-{
-  a = (page - 1) * 10 + 1
-  urlsN = paste(urlN,a,sep="")
-  htxtN = read_html(urlsN)
-  commentsN = html_nodes(htxtN,'dd.sh_blog_passage')
-  comtextN = html_text(commentsN)
-  if(length(comtextN) == 0)
-  {
-    break
-  }
-  allreviewN = c(allreviewN,comtextN)
-}
-head(allreviewN)
-
-## 1. 필요한(추출해야 할) 코드 확인
-data <- c()
-for (i in 1:100) { 
-  url_bmw <- read_html(paste0("https://auto.naver.com/search/blogSearch.nhn?carTotalCount=427&bikeTotalCount=116&postTotalCount=63419&imageTotalCount=16250&blogTotalCount=534564&cafeTotalCount=1711&query=bmw&searchType=&sortType=&filterType=CAR_FILTER_ALL&page=",i))
-  data <- c(data, html_nodes(url_bmw, ".thmb_ct") %>% 
-              html_attr('href'))
-}
-length(data)
-head(data)
-str(url_bmw)
-str(data)
-
-## 2. 텍스트 형태로 변수 저장 
-txt <- c()
-for (i in 1:10){
-  url_bmw <- read_html(data[i])
-  temp <- html_nodes(url_bmw, ".se_component_wrap.sect_dsc.__se_component_area") %>% 
-    html_text()
-  txt <- c(txt,temp)
-}
-length(txt)
-head(txt)
-
 ###########################################################################################
 
 
 
+# Korean 
 # 블로그 글 가져오기
 ## 1. 필요한(추출해야 할) 코드 확인
 data <- c()
@@ -250,6 +204,7 @@ c %>% ggplot(aes(x=positxt, y=Freq)) +
 
 
 
+# English 
 # 해외 반응 분석(트위터)
 install.packages("twitteR")
 install.packages("ROAuth")
@@ -368,6 +323,7 @@ g %>% ggplot(aes(x=postxt, y=Freq)) +
 
 
 
+# Japanese 
 # 일본 반응 분석(야후져팬)
 
 # udpipe 패키지 이용 
