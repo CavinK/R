@@ -6,7 +6,7 @@ str(CPS1985)
 
 
 
-## Exercise 1
+# Exercise 1
 #In the first exercise, we will calculate simple statistics of wage in the CPS1985 data-frame. 
 #First, use the summary function to see the summary statistics of wage; 
 #then, calculate mean, median, variance, and standard deviation of the wage.
@@ -18,7 +18,7 @@ sd(df$wage)
 
 
 
-## Exercise 2
+# Exercise 2
 #Graphical illustration of statistics would be also helpful. 
 #Since wage is numerical, histograms (density plot) and box-plots would be helpful. 
 #In this exercise, create a histogram for a wage parameter in the CPS1985 data-frame.
@@ -28,7 +28,7 @@ lines(density(log(df$wage)),col=4)
 
 
 
-## Exercise 3
+# Exercise 3
 #As for categorical variables, it is not possible to calculate mean and variance. 
 #Instead, we can produce frequency tables, bar-plots, and pie charts. 
 #In this exercise, use a table function to produce a frequency table for sector and occupation variables. 
@@ -46,7 +46,7 @@ pie(tab2)
 
 
 
-## Exercise 4
+# Exercise 4
 #It would also be useful to see the relationship between two categorical variables. 
 #In this exercise, consider the gender and occupation variables. 
 #Use the xtabs function to show the contingency table, 
@@ -57,7 +57,7 @@ plot(gender~occupation, data=df)
 
 
 
-## Exercise 5
+# Exercise 5
 #In this exercise, first calculate the correlation between wage and education to investigate how wage changes by education, 
 #then calculate the mean wage for each gender. 
 #Finally, compare the wage between males and females using box-plots and qq plots.
