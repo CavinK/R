@@ -164,7 +164,8 @@ t.test(x[,2]-x[,1])
 
 
 
-# Ch.6 Wilcoxon Signed-Rank Test
+# Ch.6 Wilcoxon Signed-Rank Test 
+## shapito.test => p<a => wilcox.test 
 ## non-parametric method of one-sample test and paired t-test
 ## shapiro.test에서 H0(정규분포 따름)을 reject할 경우
 ## 분포에 대한 가정 없이 데이터의 순서에만 의존 
@@ -327,6 +328,7 @@ summary(lm(dist ~ speed-1, data=cars))
 # log변환 & sqrt변환 -> 분산 일정화(linearisation) 
 ## speed가 증가하면서 distance의 퍼진 정도도 증가 
 ## log변환보다 sqrt변환이 선형에 가깝고 분산도 많이 평평해졌음 
+## cf. 변환하지 않고 nonlinear model을 그대로 회귀분석 => Ch.20 
 plot(log(dist) ~ speed, data=cars)
 plot(sqrt(dist) ~ speed, data=cars)
 
@@ -742,3 +744,511 @@ rmultinom(n=1, size=1, p=c(1,1,1,1,1,1)/6) # 어느 눈이 나왔는지 확인!
 rmultinom(n=1, size=10, p=c(1,1,1,1,1,1)/6) # 10개의 주사위(size=10)를 동시에 던짐 
 rmultinom(n=5, size=10, p=c(1,1,1,1,1,1)/6) # 10개의 주사위(size=10)를 5번 시행(n=5)
 rmultinom(n=1, size=381, p=c(9,3,3,1)/6) # 멘델의 강낭콩 교배 시뮬레이션 
+
+
+
+
+
+# Ch.17 Tables 
+
+## xtabs(도수 ~ 가로 + 세로)
+## xtabs(도수 ~ TreatA + TreatB)
+## xtabs(도수 ~ 로우 + 컬럼)
+respire <- read.csv("C://data/respire.csv")
+resp <- xtabs(count~treat+outcome, data=respire) # 도수가 count 변수로 요약되어 있는 경우 
+respire2 <- read.csv("C://data/respire2.csv")
+resp2 <- xtabs(~treat+outcome, data=respire2) # 요약되어 있지 않은 경우(count가 없는 경우)
+
+
+
+# Chi-square Test(카이제곱 검정) 
+## Table에서 많이 사용하는 검정 
+## 가로와 세로가 독립인지 검정! 
+
+## 기대도수가 5 이하인 cell이 전체의 20% => Fisher의 exact test 사용 
+## 모든 cell의 도수가 큰 경우 => Chi-square와 exact test는 거의 차이 없음 
+
+## chisq.test(table) or chisq.test(행렬)
+chisq.test(resp) # 치료 방법(test, placebo)의 차이가 결과(1: favorable, 0: unfavorable)에 영향 주는지 검정 => p<a: statistically significant!(치료방법의 차이는 결과에 영향을 준다)
+chisq.test(matrix(c(48,20,16,40),ncol=2)) # 이렇게 matrix에 값을 직접 입력해도 분석 가능! 
+
+# Fisher의 Exact Test 
+## fisher.test(table)
+## 초기하분포(hypergeometric distribution)를 이용하여 p-value 계산 
+## 테이블의 도수들이 큰 경우 exact test는 많은 계산이 요구됨 => Chi-square Test 사용! 
+tea <- read.csv("C://data/tea.csv")
+teat <- xtabs(count ~ poured+guessed, data=tea) # poured: 실제 // guessed: 추측 
+fisher.test(teat) # p>a => statistically insignificant(실제와 추측은 연관성이 없다 => 독립적이다)
+chisq.test(teat) # similar to the result of Fisher's Exact Test(Warning이 출력되면 fisher.test() 실행!)
+fisher.test(matrix(c(3,1,1,3),ncol=2)) # matrix 사용 
+
+
+
+# Cochran-Armitage Trend Test 
+## prop.trend.test(c(),c())
+## 컬럼의 level별(low, medium, high)로 "추세"가 있는 지 파악 
+
+'''
+(테이블 형태)
+              low   medium    high
+favorable     13      7       21
+unfavorable   29      7       7
+total         42      14      28
+
+- 투여한 신경안정제의 용량(low, medium, high)이 정신병 증상에 미치는 영향(favorable, unfavorable) 조사 
+- favorable의 확률은 점차 증가(low:0.21 // medium:0.5 // high:0.75)
+- unfavorable의 확률은 점차 감소(low:0.69 // medium:0.5 // high:0.25)
+
+=> 컬럼의 level별(low, medium, high)로 "추세"가 있는 지 알아보기 위해 Cochran-Armitage Trend Test 시행! 
+H0: 추세가 없다 // H1: 추세가 있다 
+'''
+prop.trend.test(c(13,7,21),c(42,14,28)) # p<a => reject H0!(신경안정제를 많이 투여할 수록 효과가 좋다)
+
+## cf. medium 용량이 가장 좋은 효과를 주는 경우(high는 부작용 줄 수 있음)
+## => 컬럼의 level별로 추세가 없음
+## => Cochran-Armitage trend test로는 연관성 찾아내기 힘듬! 
+## => Chi-square test 이용!! 
+'''
+(테이블 형태)
+              low   medium    high
+favorable     13      10      10
+unfavorable   29      4       18
+total         42      14      28
+'''
+prop.trend.test(c(13,10,10),c(42,14,28)) # p>a => DNR H0!(Cochran-Armitage trend test로는 연관성이 파악되지 않음)
+
+trend <- read.csv("C://data/trend.csv")
+trendt <- xtabs(count ~ resp+dose, data=trend) # 컬럼 이름 앞에 숫자를 붙이면(ex. 1:low) table이 바람직하게 배열됨 
+chisq.test(trendt) # p<a => statistically significant!!(연관성 파악됨)
+chisq.test(matrix(c(13,29,10,4,10,18),ncol=3)) # matrix 이용 
+
+
+
+# McNemar Test 
+## mcnemar.test(Table)
+## 연관된 두 binary 변수의 일치도 조사 
+## Chi-square: t-test // McNemar: paired t-test 
+
+## ex. 광고 효과가 상품 판매에 영향을 미치는 지 조사 
+'''
+상품A 광고
+광고 전 -> 광고 후
+    A         B
+A   5(A->A)   5(A->B)
+B   15(B->A)  7(B->B)
+'''
+yuna <- read.csv("C://data/yuna.csv")
+yunat <- xtabs(count ~ before+after, data=yuna)
+mcnemar.test(yunat) # p<a => statistically significant 
+
+
+
+# Simulation 
+## r2dtable() <- 초기하분포(hypergeometric distribution) 
+r2dtable(n=1, c(33,51), c(42,14,28))
+r2dtable(n=1, rowSums(trendt), colSums(trendt)) # 위에 처럼 굳이 로우와 컬럼의 합을 일일히 계산할 필요 없이, 이렇게 함수를 쓰는 게 간편! 
+
+
+
+
+
+# Ch.18 Logistic Regression 
+## 종속변수가 binary! <- cf. 회귀분석, 분산분석: 연속형 종속변수 
+## Odds의 log-변환을 종속변수로 모형화 
+
+respire <- read.csv("C://data/respire.csv")
+xtabs(count~treat+outcome, data = respire )
+
+# Odds 
+## 일어날 확률과 일어나지 않을 확률의 비 <- p/(1-p) 
+'''
+         outcome
+treat      0  1
+  placebo 48 16
+  test    20 40
+
+placebo의 odds = (16/64)/(48/64) = 16/48
+test의 odds = 40/20
+'''
+
+# Odds Ratio 
+## test의 odds가 placebo의 odds의 몇 배인지 보고 싶을 때 사용 
+## Odds Ratio = OddsTest/OddsPlacebo = (40/20)/(16/48) = 6 
+
+# Logistic Regression 
+## odds를 log-변환시킨 log(odds)를 모형화 
+## log(odds) = log(1/(1-p)) = b0 + b1*x1 + b2*x2 + ... bk*xk 
+## odds = 1/(1-p) = e^(b0 + b1*x1 + b2*x2 + ... bk*xk) <- odds는 exp의 형태로 표현! 
+### xi가 연속형 -> e^bi는 (xi + 1 vs xi)의 odds ratio 
+### xi가 binary 변수 -> e^bi 자체가 odds ratio 
+
+# Ex.1 독립변수가 이산형 <- treat(placebo vs test) 
+## 회귀분석과 형식은 동일 BUT lm() 대신 glm() 사용 
+## 종속변수인 outcome이 binary 
+## glm(종속변수 ~ 독립변수들, family=binomial) 
+respire <- read.csv("C://data/respire.csv")
+respire2 <- read.csv("C://data/respire2.csv")
+out <- glm(outcome ~ treat, family = binomial, data=respire2) # count가 요약되지 않은 경우 
+out <- glm(outcome ~ treat, weights = count, family = binomial, data=respire) # weights = count: count가 요약된 경우 
+summary(out) # test-placebo인 treattest의 p-value < a => statistically significant! 
+
+## Odds Ratio 
+### treattest(test-placebo) = 1.7918 => 대조군(placebo)에 비해 test군이 1.7918만큼 높다는 뜻 
+coef(out)["treattest"] # 1.791759
+exp(coef(out)["treattest"]) # odds ratio = e^1.791759 = 6 => test군의 odds가 placebo군의 그것보다 6배 높다!! 
+### 각 그룹의 odds 구하는 과정 -> page 178 참고! 
+
+## Odds Ratio의 95% Confidence Interval 
+confint(out, parm = "treattest") # log(odds ratio)의 CI 
+exp(confint(out, parm = "treattest")) # odds ratio의 CI <- 1을 포함하지 않음 
+
+## tapply() 이용 
+with(respire, tapply(count, treat, sum)) # 각 그룹의 총 도수 
+with(respire, tapply(count*outcome, treat, sum)) # outcome=1에 해당하는 도수(count와 outcome을 곱하면 outcome=0에 해당되는 도수는 사라짐) 
+p <- with(respire, tapply(count*outcome, treat, sum)/tapply(count, treat, sum)) # 각 그룹의 outcome이 1일 확률(p) 
+odds <- p/(1-p) # 각 그룹의 odds 
+odds[2]/odds[1] # odds ratio 
+
+### cf. count가 없는 경우 
+with(respire2, tapply(outcome, treat, sum)/tapply(outcome, treat, length)) # length(): 각 그룹의 도수 // sum(): outcome(=1)의 합 
+
+
+
+# Ex.2 독립변수가 연속형 <- dose 
+toxic <- read.csv("C://data/toxic2.csv")
+toxic <- data.frame(dose = c(0,0,1,1,2,2),
+                    response = c(0,1,0,1,0,1), # binary <- 0(생존) vs 1(사망) 
+                    count = c(7,3,5,5,2,8)) # ex. dose=0 => 10마리 중 3마리 사망, 7마리 생존 
+out <- glm(response ~ dose, weights = count, family = binomial, data=toxic)
+summary(out) # b=1.1051 <- dose 1 증가 => 쥐가 죽을 odds는 e^1.1051배 증가 
+exp(confint(out, parm="dose")) # odds ratio의 95% 신뢰구간 
+
+
+
+# Ex.3 2개의 독립변수 
+## 인종차별에 대한 데이터 <- 희생자의 인종(victim)과 피고의 인종(defendant)이 사형 판결(death)에 어떤 영향을 주는 지 조사 
+dpen <- read.csv("C://data/death_penalty2.csv")
+
+## 피고가 흑인인 경우 사형 판결 받을 확률이 높은 지 파악
+defend <- xtabs(count ~ defendant+death, data=dpen) # table 구성 <- odds ratio = 1.181(White의 Black에 대한 odds ratio) 
+chisq.test(defend) # p>a => statistically insignificant 
+
+## 피해자의 인종이 사형 판결에 중요한 요인인 지? 
+vic <- xtabs(count ~ victim+death, data=dpen) # odds ratio = 2.88(피해자가 백인인 경우, 흑인일 때보다 사형 판결 받을 odd가 거의 3배가 됨) 
+chisq.test(vic) # p<a => statistically significant 
+
+## interaction term(victim*defendant) 사용해서 glm()에 적용 
+out1 <- glm(death ~ victim*defendant, weights = count, family = binomial, data=dpen)
+summary(out1) # victim만 통계적으로 유의 => victim만 모형에 넣음! 
+
+out2 <- glm(death ~ victim, weights = count, family = binomial, data=dpen)
+summary(out2)
+
+## 두 모형을 anova()로 비교 
+### anova(작은 모형, 큰 모형, test="Chisq") <- glm()일 때는 test="Chisq" 넣어줌! 
+anova(out2, out1, test = "Chisq") # p>a => statistically insignificant => 작은 모형이 정당성을 가짐!(변수 제거가 옳음!) 
+exp(confint(out2, parm = "victimWhite")) # confidence interval of 95% 
+
+
+
+# Ex.4 여러 개의 독립변수 
+bw <- read.csv("C://data/birthwt.csv")
+colnames(bw) # binary인 low를 종속변수로 사용 <- low: bwt가 2.5kg보다 작으면 1, 크거나 같으면 0 
+
+library(MASS)
+out <- glm(low ~ lwt+factor(race)+smoke+ht+ui, data=bw, family = binomial) 
+summary(out) # all statistically significant! 
+exp(coef(out)) # odds ratio 
+## 산모의 흡연(smoke)은 저체중의 odds를 2.8174471배 높임 
+## 산모의 몸무게(lwt)가 1 증가하면 신생아 저체중의 odds는 0.9834068배 증가, 즉, 1.016873(=1/0.9834068)배 감소 
+
+
+
+# 요약된 자료와 요약되지 않은 자료의 통계치 비교 
+## 데이터 구조의 차이 때문에 추정치, 잔차 등이 다름! 
+out1 <- glm(outcome ~ treat, weights = count, family = binomial, data=respire) # 요약된 경우 
+out2 <- glm(outcome ~ treat, family = binomial, data=respire2) # count가 요약되지 않은 경우 
+
+## 1. 회귀계수(b) 
+B <- coef(out1)
+### log-odds = log(p/(1-p)) = b0 + b1*x 
+### test:1 // placebo:0 
+B[1]+B[2]*(respire$treat=="test") # log-odds 
+exp(B[1]+B[2]*(respire$treat=="test")) # odds <- log-odds를 exp()로 변환 
+
+## 2. Pr(Y=1)의 추정치 p 
+fitted(out1)
+fitted(out2) # 모든 124개의 phat이 출력됨!! 
+p = unique(fitted(out1)) # 중복 제거 
+p/(1-p) # odds 
+log(1/(1-p)) # log-odds 
+
+# Simulation 
+## 요약된 자료 
+total <- with(respire, tapply(count,treat,sum)) # 각 treat(placebo & test)의 도수합 계산 
+xtabs(count~treat+outcome, data=respire) 
+### treat의 outcome=1인 count를 시뮬레이션 
+### 각 treat의 합인 total을 size에 넣고, 각 treat의 Pr(outcome=1)을 p에 넣음 
+rbinom(n=length(total), size=total, p=unique(fitted(out1))) # 실제 outcome=1의 데이터와 비교! 
+
+## 요약되지 않은 자료 
+rbinom(n=nrow(respire2), size=1, p=fitted(out2)) # 124명 각각의 outcome이 0인지 1인지 시뮬레이션 => size=1 
+
+## toxic 
+out <- glm(response~dose, weights=count, family=binomial, data=toxic)
+total <- with(toxic, tapply(count, dose, sum))
+p = unique(fitted(out))
+rbinom(3,total,p) # 이항분포로부터 각 dose별로 죽은 쥐의 수를 시뮬레이션 
+'''
+[1] 3 5 8
+
+dose    response
+0       3/10
+1       5/10
+2       8/10
+'''
+
+
+
+
+
+# Ch.19 Possion Regression 
+## 암으로 인한 사망률: 인구 10만명 당 161명 <- 발생률이 낮음 
+## 발생률이 낮은 비율이나 도수가 종속변수인 경우 => Poisson regression 
+
+# 도수의 모형화 
+## log(mu) = b0 + b1*x1 + b2*x2 + ... + bk*xk 
+
+# 비율의 모형화 
+## log(mu/N) = b0 + b1*x1 + b2*x2 + ... + bk*xk 
+## 일정 기간 동안 단위 인구당 새로 발생한 개체 수를 사용하는 경우 
+## ex. 2010년 1000명당 위암 발생 환자 수가 3.2명(비율) 
+
+# A. log-linear model 
+## ex1. 도수 
+bicycle <- read.csv("C://data/bicycle.csv") # 자전거 종류(type)와 안전모 작용 여부(helmet)의 연관성 조사 
+bike <- xtabs(count~type+helmet, data=bicycle) # xtabs(count ~ x+y) 
+chisq.test(bike) # p<a => statistically significant between type and helmet 
+
+## glm(count ~ 독립변수들, family=poisson) 
+summary(glm(count ~ type*helmet, data = bicycle, family=poisson)) # interaction term 
+### -> interaction(typeOther:helmetyes)의 p<a => Chi-square의 결과와 동일! 
+
+## ex2. 비율 
+melanoma <- read.csv("C://data/melanoma.csv") 
+### total: 각 지역(region)과 나이(age) 그룹의 총 인구수 // cases: 피부암 발생 수 
+
+## tapply()를 이용해서 각 age 그룹의 피부암 발생 "비율" 계산 
+10000*with(melanoma, tapply(cases, age, sum)/tapply(total, age, sum)) # 인구 10000명당 피부암 발생 비율 
+10000*with(melanoma, tapply(cases, region, sum)/tapply(total, region, sum)) # 각 region의 인구 만명당 비율 
+
+## 비율의 경우, glm()에 offset 추가! <- log(mu/N) = log(mu)-log(N) <- 도수일 때는 log(N)를 뺄 필요 없음! 
+## glm(count ~ 독립변수들, family=poisson, offset=log(total))
+summary(glm(cases~age+region, family=poisson, offset=log(total), data=melanoma))
+### -> reference(age<=35)와 비교된 모든 age 그룹이 유의! region도 유의! 
+### reference를 비꾸고 싶으면 relevel() 사용(from Ch.15) 
+
+
+
+# B. Logistic Regression 
+respire <- read.csv("C://data/respire.csv") # placebo에서 총 64명, test에서 총 60명 뽑아서 outcome이 0 or 1인지 관찰 
+res <- xtabs(count~treat+outcome, data=respire) # 행의 합이 각각 64, 60으로 고정! 
+## => 치료의 종류(treat)가 병의 outcome에 어떤 영향을 미치는지 알아보는 것이 목적 
+
+# cf. Log-linear Models 
+bicycle <- read.csv("C://data/bicycle.csv") # 80명을 관찰하여 자전거 종류(type)와 안전모 착용 여부(helmet)의 연관성을 보는 것 
+bike <- xtabs(count~type+helmet, data=bicycle) # 열의 합, 행의 합이 고정된 게 아니라, 총합 80이 고정된 값! 
+## => type과 helmet 중 어느 변수가 종속 변수이고 어떤 변수가 설명 변수인 지 말할 수 없음! 
+
+
+
+# Simulation 
+out <- glm(cases~age+region, family=poisson, offset = log(total), data=melanoma)
+mu <- fitted(out) # 모형에서 추정된 기대값 mu를 이용해 Poisson 분포에서 사망자 수 시뮬레이션 
+rpois(n=length(mu), mu)
+cbind(melanoma[,c(1,2)], cases=rpois(12,mu)) # age, region 구분해서 표시 
+
+
+
+
+
+# Ch.20 비선형 회귀분석(Nonlinear Regression) 
+## Pharmacokinetics 모형 사용 
+## nonlinear 형태의 두 변수 => 선형으로 변환(log-linearisation)시키지 않고 nonlinear regression 사용! 
+
+# A. One-compartment Model 
+one.comp <- read.csv("C://data/one_comp.csv") # 약을 투여한 후, 경과 시간(time)에 따른 혈중 농도(conc) 측정 
+## one-compartment model: 혈중 농도가 지수적으로 감소 <- Ct = C0*exp(-K*t) 
+## <- C0: 혈중 농도의 최대치(시간이 지남에 따라 땀, 소변 등으로 배출되고 간에 의해 분해되어 지수적ㅇ로 혈중 농도 감소) 
+## <- Ct: 시간 t에서의 혈중 농도 // K: elimination rate 
+
+### Ch.10: log-변환으로 정규분포 따르는 log-normal 분포 가정 
+### Ch.20: 변환 없이 Nonlinear 함수 형태 그대로 정규분포 따른다고 가정 
+
+# ex1. IV Dose 
+## 0. 초기값 추정 
+### Ch.10의 log-변환 후 선형회귀분석 결과 참조 
+
+## 1. nonlinear least square 
+## nlm(y ~ 함수식, start=list(초기값들)) <- nonlinear regression은 초기값 추정이 필요!! 
+one <- nls(conc~C0*exp(-K*time), start = list(C0=41.3, K=0.64), data = one.comp) # 초기값: Ch.10에서 회귀분석으로 얻은 값을 exp로 변형 
+### => 추정된 식이 Ch.10(log-변환 후 선형회귀분석)의 추정된 식과 차이가 있음! 
+ㅔ
+## 2. Visualisation 
+install.packages("NRAIA", repos="http://R-Forge.R-project.org")
+library(NRAIA)
+plotfit(one)
+
+## ex2. Oral Dose 
+oral.dose <- read.csv("C://data/oral_dose.csv") 
+### 구강 복용 후 약이 소장에서 흡수 => 간을 거쳐 혈중 농도가 측정되는 정맥으로 이동 
+### => 약 복용 직후 혈중 농도는 0 => 흡수됨에 따라 가파르게 증가 => 어느 순간에 서서히 감소 
+oral <- nls(conc ~ SSfol(Dose=4.4, time, lKe, lKa, lCl), data=oral.dose) # SSfol() 이용해 초기값 추정 // D에 약의 복용량 지정 
+summary(oral)
+plotfit(oral, xlim=c(0,35))
+
+
+
+# B. Two-compartment Model 
+two.comp <- read.csv("C://data/two_comp.csv") # Indomethacin: 정맥에 주입한 약의 시간(time:hour)에 따른 혈중 농도(conc:ng/ml)의 변화 
+## two-compartment model: one-compartment model보다 약의 농도가 더 가파르게 감소 
+## One-compartment model에 지수항이 하나 더 추가 => 초기에 농도가 더 가파르게 감소! 
+## <- Ct = A1*exp(-b1*t) + A2*exp(-b2*t) <- SSbiexp(): 적절한 초기값 추정! 
+
+## nls(y변수 ~ SSbiexp(x변수,A1,lrc1,A2,lrc2))
+two <- nls(conc~SSbiexp(time,A1,lrc1,A2,lrc2), data = two.comp) # 초기값 없이 SSbiexp()를 이용! 
+plotfit(two)
+
+
+
+# C. Michaelis-Menten model 
+## Pharmacodynamics: 약의 혈중 농도 변화에 몸이 어떻게 반응하는지 연구 
+## v = Vm*x / (K+x) <- Vm: v의 이론상 최대값 // K: v=Vm/2를 만족시키는 농도(conc) 
+MM <- read.csv("C://data/MM.csv")
+mm <- nls(rate ~ SSmicmen(conc,Vm,K), data=MM)
+summary(mm)
+plotfit(mm, ylim=c(0,130), xlim=c(0,400))
+
+'''
+* Self-Starting Functions 
+
+SSbiexp(): Biexponential model 
+SSfol(): First-order Compartment Model
+SSmicmen(): Michaelis-Menten Model 
+
+SSasymp(): Asymptotic Regression Model 
+SSasympOff(): Asymptotic Regression Model with an Offset 
+SSasympOrig(): Asymptotic Regression Model through the Origin 
+SSfpl(): Four-Parameter Logistic Model 
+SSgompertz(): Gompertz Growth Model 
+SSlogis(): Logistic Model 
+SSweibull(): Weibull Growth Curve Model 
+'''
+
+# Simulation 
+## 1. fitted()로 yhat 구함 => mean 
+## 2. summary(out)$sigma로 sigma_hat 구함 => sd 
+## 3. rnorm()으로 정규분포에서 자료를 시뮬레이션 
+out <- nls(conc ~ C0*exp(-K*time), start = list(C0=41.3,K=0.64), data=one.comp)
+rnorm(n=nrow(one.comp), mean=fitted(out), sd=summary(out)$sigma) 
+
+
+
+
+
+# Ch.21 생존분석(Survival Data Analysis) 
+
+## 절단된 자료 <- ex. 10년 동안 매월 초 환자에게 연락해서 생존 확인했는데, 5년차 부터는 연락이 두절된 경우 
+## => 정확한 생존기간은 알 수 없지만 생존 기간이 최소 5년 이상임을 알 수 있음 
+## 생존분석: 이런 절단된 자료를 버리지 않고 분석에 최대한 활용! 
+
+## 생존함수(survival function: S(t))
+### t 시점에 살아 있을 확률 
+
+## 위험함수(hazard function: h(t))
+### h(t) = - (dS(t)/dt)/S(t) 
+### t 시점에 살아 있지만 아주 짧은 시간 안에 죽을 확률 
+
+## 생존함수 추정 방법 
+### 1. Kaplan-Meier의 Log-rank test <- 두 생존함수의 차이 검정 
+### 2. Cox regression <- hazard function 모형화 
+
+## survival::Surv() <- 생존시간과 절단 정보를 결합하여 종속변수로 이용 
+
+'''
+Library                 survival 
+Survival object         Surv(time,status)   종속변수 생성 
+Kaplan-Meier estimates  survfit()           생존함수 S(t) 추정 
+Log-rank test           survdiff            두 생존함수의 차이 검정 
+Cox regression          coxph()             위험함수 h(t) 추정 
+'''
+
+# ex1. 
+
+# 0. 종속변수 생성 
+library(survival)
+attach(aml) # time: 백혈병 환자들의 생존시간 // status: 생존시간이 절단되었는 지의 여부(0 or 1)
+### status==1 <- 환자가 연구기간 이내에 사망 // status==0 <- 추적 안 되거나 아직 살아있어서 실제 생존시간이 time보다 더 길 가능성이 있음 
+Surv(time, status==1) # 사망한 환자의 status 값이 1임을 명시 // status==0의 경우 "+"를 추가하여 실제 생존시간이 더 길 수 있음을 암시 
+### <- 이를 종속변수로 사용!!! 
+
+# 1. Kaplan-Meier Curve 
+## survfit() 
+## y~1 <- 모든 그룹을 합친 전체 데이터를 사용하라는 의미(cf. 기존에는 y-절편만 넣으라는 의미였음) 
+out <- survfit(Surv(time,status==1)~1, data=aml)
+summary(out)
+plot(out) # 가운데 선이 K-M Curve, 옆의 두 점선은 95% 신뢰구간 
+plot(out, conf.int = FALSE) # CI 없앰 
+
+out.x <- survfit(Surv(time,status==1)~x, data=aml) # x컬럼: 환자가 항암 치료 받았는지 아닌지의 여부 => 이를 그룹변수로 사용!(y~x)
+plot(out.x, lty=1:2, col=c("red","blue")) # lty(1:실선, 2:점선) // 항암 치료를 받은 환자들(Maintained)의 생존확률이 확연히 높음 
+
+# 2. Log-rank test 
+## survdiff() 
+## 항암 치료 받은 환자들의 생존확률이 모든 구간에 걸쳐 높음 => 이 차이가 통계적으로 유의한 지 log-rank test 수행 
+survdiff(Surv(time, status==1)~x, data=aml) # Chi-square(df=1)=3.4 // p>=a <- 그래도 의미 있음! 
+
+# 3. Cox regression 
+## coxph() 
+## log-hazard를 회귀분석처럼 선형모형화 => 위험함수 h(t)를 추정 
+summary(coxph(Surv(time,status==1)~x, data=aml)) # hazard ratio exp(coef) = 2.4981 
+### <- 항암 치료 받지 않은 그룹의 순간사망위험(hazard)이 2.4981배 더 높음 
+### <- 통계적으로 유의미하진 않지만(p>a), 상당히 의미 있음 
+
+
+
+# ex2. 
+
+?lung # 폐암 환자들의 생존 데이터 => 생존시간(time)과 절단정보(status)가 포함되어 있음을 확인! 
+### status==1: censored // status==2: dead 
+
+# 1. Kaplan-Meier Curve 
+Surv(time, status==2) # 종속변수 생성 
+lung$sex # 그룹변수1 <- level이 둘인 경우 연속형으로 입력돼도 상관 없지만, 둘 이상인 경우 factor()를 이용하여 이산형으로 바꿔줘야 함! 
+out.sex <- survfit(Surv(time,status==2)~sex, data=lung)
+plot(out.sex, lty=1:2, col=c("red","blue")) # K-M Curve 
+
+lung$age # 그룹변수2 <- 연속형 변수 => 이산형 변수로 바꿔줘야 함! => median보다 큰 그룹은 TRUE(1), 작은 그룹은 FALSE(0) 
+age2 <- (lung$age > median(lung$age))
+out.age <- survfit(Surv(time,status==2)~age2, data=lung)
+out.age <- survfit(Surv(time,status==2)~(age>median(age)), data=lung) # 따로 변수(age2) 생성하지 않고 이렇게 정의해줘도 됨! 
+plot(out.age, lty=1:2, col=c("red","blue"))
+
+# 2. Log-rank Test 
+survdiff(Surv(time,status==2)~sex, data=lung) # p<a => statistically significant 
+
+# 3. Cox Regression 
+out <- coxph(Surv(time,status==2)~sex, data=lung)
+summary(out) # 남자(sex=1)를 reference로 한 여자(sex=2)의 hazard ratio: exp(coef)=0.5880 
+
+out2 <- coxph(Surv(time,status==2) ~ age+sex, data=lung) # age와 sex를 동시에 넣고 모형 적합 
+summary(out2) # age의 hazard ratio: p>a // 남자에 대한 여자의 hazard ratio: p<a 
+
+anova(out,out2) # 두 모형 비교 <- Cox regression의 모형을 비교할 때 LRT(likelihood ratio test) 사용 
+### age의 p-value>a => not statistically significant, but still meaningful(quite close to a(0.05)) 
+
+
+
+
+
+# Ch.22 검정력(Power)과 표본 수(Sample Size) 
